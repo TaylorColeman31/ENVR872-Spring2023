@@ -1,0 +1,61 @@
+---
+title: "<TaylorColeman>_A01_Introduction.Rmd"
+author: "Taylor Coleman"
+output: pdf_document
+geometry: margin=2.54cm
+---
+
+## OVERVIEW
+
+This exercise accompanies the introductory material in Environmental Data Analytics. 
+
+## Directions
+1.  Rename this file `<FirstLast>_A01_Introduction.Rmd` (replacing `<FirstLast>` with your first and last name).
+2.  Change "Student Name" on line 3 (above) with your name.
+3.  Work through the steps, **creating code and output** that fulfill each instruction.
+4.  Be sure to **answer the questions** in this assignment document.
+5.  When you have completed the assignment, **Knit** the text and code into a single PDF file.
+6.  After Knitting, submit the completed exercise (PDF file) to the appropriate assigment section on Sakai.
+
+
+## 1) Finish setting up R Studio
+
+### Install TinyTex
+Now, run this code cell the same way. This will install "tinytex" -- a helper app that allows you to knit your markdown documents into professional quality PDFs.
+```{r install tiny tex, eval=FALSE, include=FALSE}
+#install tinytext
+tinytex::install_tinytex()
+```
+
+### Set your default knit directory
+This setting will help deal with relative paths later on...
+ - From the Tool menu, select `Global Options`
+ - Select the RMarkdown section
+ - In the "Evaluate chunks in directory", set the option to "Project"
+
+
+## 2) Discussion Questions
+Enter answers to the questions just below the >Answer: prompt.
+
+1. What are your previous experiences with data analytics, R, and Git? Include both formal and informal training.
+
+> Answer: 
+I took an Introduction to Statistical Modeling course during the spring of 2020 (what became my COVID semester) during my time as an undergrad at the University of Richmond. I downloaded and used RStudio off my laptop for the first time ever to complete take home assignments. However, once the class went completely remote, we were no longer expected to use R for the completion of assignments, and I did not retain my familiarity using it! I am eager to ease back into it this semester. Additionally, I was given a very brief introduction to using Google Earth Engine for a Remote Sensing course my last year at Richmond. I have no experience with Git.
+
+2. Are there any components of the course about which you feel confident?
+
+> Answer: I am confident that I will learn a variety of new tools and approaches for data wrangling, analysis, and preparation that will benefit me moving forward - with my MP, future GIS classes, and potential career!
+
+3. Are there any components of the course about which you feel apprehensive?
+
+> Answer: I am somewhat apprehensive of not having an in-person class aside from our lab sections during which I would have the ability to see you (Dr. Fay and Dr. Lima) and ask questions about issues I have encountered while doing work for the course. I am still getting used to the role of TAs (they were less common/available to me during my time at Richmond), and I have the tendency to want to resort to the professors first before consulting others about issues/troubleshooting!
+
+
+## 3) GitHub
+
+Provide a link below to your forked course repository in GitHub. Make sure you have pulled all recent changes from the course repository and that you have updated your .Rmd file, committed those changes, and pushed them to your GitHub account. 
+
+> Answer: 
+
+## 4) Knitting
+When you have completed this document, click the `knit` button.This should produce a PDF copy of your markdown document. Submit this PDF to Sakai. 
