@@ -40,7 +40,7 @@ Enter answers to the questions just below the >Answer: prompt.
 1. What are your previous experiences with data analytics, R, and Git? Include both formal and informal training.
 
 > Answer: 
-I took an Introduction to Statistical Modeling course during the spring of 2020 (what became my COVID semester) during my time as an undergrad at the University of Richmond. I downloaded and used RStudio off my laptop for the first time ever to complete take home assignments. However, once the class went completely remote, we were no longer expected to use R for the completion of assignments, and I did not retain my familiarity using it! I am eager to ease back into it this semester. Additionally, I was given a very brief introduction to using Google Earth Engine for a Remote Sensing course my last year at Richmond. I have no experience with Git.
+I took an Introduction to Statistical Modeling course during the spring of 2020 (what became my COVID semester) during my time as an undergrad at the University of Richmond. I downloaded and used RStudio off my laptop for the first time ever to complete take-home assignments. However, once the class went completely remote, we were no longer expected to use R for the completion of assignments, and I did not retain my familiarity using it! I am eager to ease back into it this semester. Additionally, I was given a very brief introduction to using Google Earth Engine for a Remote Sensing course my last year at Richmond. I have no experience with Git.
 
 2. Are there any components of the course about which you feel confident?
 
@@ -48,7 +48,7 @@ I took an Introduction to Statistical Modeling course during the spring of 2020 
 
 3. Are there any components of the course about which you feel apprehensive?
 
-> Answer: I am somewhat apprehensive of not having an in-person class aside from our lab sections during which I would have the ability to see you (Dr. Fay and Dr. Lima) and ask questions about issues I have encountered while doing work for the course. I am still getting used to the role of TAs (they were less common/available to me during my time at Richmond), and I have the tendency to want to resort to the professors first before consulting others about issues/troubleshooting!
+> Answer: I am somewhat apprehensive of not having an in-person class aside from our lab sections during which I would have the ability to see you (Dr. Fay and Dr. Lima) and ask questions about issues I have encountered while doing work for the course. I am still getting used to the role of TAs (they were less common/available to me at the University of Richmond), and I have the tendency to want to resort to the professors first before consulting others about issues/troubleshooting!
 
 
 ## 3) GitHub
