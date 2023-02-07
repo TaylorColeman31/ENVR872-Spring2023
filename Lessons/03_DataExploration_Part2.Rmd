@@ -1,0 +1,175 @@
+---
+title: "3: Data Exploration"
+author: "Environmental Data Analytics | Kateri Salk"
+date: "Spring 2023"
+output: pdf_document
+geometry: margin=2.54cm
+fig_width: 5
+fig_height: 2.5
+editor_options: 
+  chunk_output_type: console
+---
+
+## Objectives
+1. Import and explore datasets in R
+2. Graphically explore datasets in R
+3. Apply data exploration skills to a real-world example dataset
+
+## Opening discussion: why do we explore our data?
+
+Why is data exploration our first step in analyzing a dataset? What information do we gain? How does data exploration aid in our decision-making for data analysis steps further down the pipeline?
+
+## Import data and view summaries
+
+```{r, message = FALSE}
+# 1. Set up your working directory
+getwd()
+
+# 2. Load packages
+library(tidyverse)
+
+# 3. Import datasets
+USGS.flow.data <- read.csv("./Data/Processed/USGS_Site02085000_Flow_Processed.csv",stringsAsFactors = T)
+
+#View(USGS.flow.data)
+# Alternate option: click on data frame in Environment tab
+
+colnames(USGS.flow.data)
+str(USGS.flow.data)
+dim(USGS.flow.data)
+
+# Check our date column
+class(USGS.flow.data$datetime)
+
+USGS.flow.data$datetime <- as.Date(USGS.flow.data$datetime, format = "%Y-%m-%d") 
+class(USGS.flow.data$datetime)
+
+```
+
+
+## Visualization for Data Exploration
+
+Although the `summary()` function is helpful in getting an idea of the spread of values in a numeric dataset, it can be useful to create visual representations of the data to help form hypotheses and direct downstream data analysis. Below is a summary of the useful types of graphs for data exploration.
+
+Note: each of these approaches utilize the package "ggplot2". We will be covering the syntax of ggplot in a later lesson, but for now you should familiarize yourself with the functionality of what each command is doing.
+
+### Bar Chart (function: geom_bar)
+
+Visualize count data for categorical variables. 
+
+```{r, bar chart fig.height = 3, fig.width = 4}
+ggplot(USGS.flow.data, aes(x = discharge.mean.approval)) +
+  geom_bar()
+
+ggplot(na.omit(USGS.flow.data), aes(x = discharge.mean.approval)) +
+  geom_bar()
+
+```
+
+### Histogram (function: geom_histogram)
+
+Visualize distributions of values for continuous numerical variables. What is happening in each line of code? Insert a comment above each line.
+
+```{r, histogram, fig.height = 3, fig.width = 4}
+# Histogram for mean discharge
+ggplot(USGS.flow.data) +
+  geom_histogram(aes(x = discharge.mean))
+
+# Histogram with adjusted binwidth - smooths the data
+ggplot(USGS.flow.data) +
+  geom_histogram(aes(x = discharge.mean), binwidth = 10)
+
+# Adjusting the # of bins. Default is 30 bins
+ggplot(USGS.flow.data) +
+  geom_histogram(aes(x = discharge.mean), bins = 20)
+
+# Adding the scale_X_continuous command that allows us to zoom-in on histogram
+ggplot(USGS.flow.data) + 
+  geom_histogram(aes(x = discharge.mean), bins = 30, 
+  binwidth = 10) + 
+  scale_x_continuous(limits = c(0, 500))
+  
+# Production of histogram for mean gage height that reveals a different shape/trend for the data
+ggplot(USGS.flow.data) +
+  geom_histogram(aes(x = gage.height.mean))
+
+```
+### Frequency line graph (function: geom_freqpoly)
+
+An alternate to a histogram is a frequency polygon graph (distributions of values for continuous numerical variables). Instead of displaying bars, counts of continuous variables are displayed as lines. This is advantageous if you want to display multiple variables or categories of variables at once.
+
+```{r, line graph, fig.height = 3, fig.width = 4}
+# Creation of frequency line graph with mean gage height as a solid black line, min. gage height as a solid red line, and max. gage height as a dashed black line, specified by the "lty" or line type command.
+ggplot(USGS.flow.data) +
+  geom_freqpoly(aes(x = gage.height.mean), bins = 50) +
+  geom_freqpoly(aes(x = gage.height.min), bins = 50, color = "red") +
+  geom_freqpoly(aes(x = gage.height.max), bins = 50,  lty = 2) +
+  scale_x_continuous(limits = c(0, 10))
+
+# Modification of aesthetics to show 2 categories of data on the same plot: Note that random colors were automatically assigned to each category of mean approval ("A" for data approved for publication, "P" for provisional data subject to revision).
+ggplot(USGS.flow.data) +
+  geom_freqpoly(aes(x = gage.height.mean, color = gage.height.mean.approval), bins = 50) +
+  scale_x_continuous(limits = c(0, 10)) +
+  theme(legend.position = "top")
+
+```
+### Box-and-whisker plots (function: geom_boxplot, geom_violin)
+
+A box-and-whisker plot is yet another alternative to histograms (distributions of values for continuous numerical variables). These plots consist of: 
+
+* A box from the 25th to the 75th percentile of the data, called the interquartile range (IQR).
+
+* A bold line inside the box representing the median value of the data. Whether the median is in the center or off to one side of the IQR will give you an idea about the skewness of your data.
+
+* A line outside of the box representing values falling within 1.5 times the IQR. 
+
+* Points representing outliers, values that fall outside 1.5 times the IQR. 
+
+An alternate option is a violin plot, which displays density distributions, somewhat like a hybrid of the box-and-whiskers and the frequency polygon plot.
+
+```{r, box-and-whisker and violin, fig.height = 3, fig.width = 4}
+# Showing summary statistics for 2 datasets: mean approval and mean gage height.
+ggplot(USGS.flow.data) +
+  geom_boxplot(aes(x = gage.height.mean.approval, y = gage.height.mean))
+
+# cut_width slices distribution of data, similar to a histogram, for the box and whisker plots generated ("discharge.mean sliced into gage.height.mean"). IQR seems to increase as discharge mean increases!
+ggplot(USGS.flow.data) +
+  geom_boxplot(aes(x = gage.height.mean, y = discharge.mean, group = cut_width(gage.height.mean, 1)))
+
+# Violin plot allows for simultaneous visualization of range and distribution of values
+ggplot(USGS.flow.data) +
+  geom_violin(aes(x = gage.height.mean.approval, y = gage.height.mean), 
+              draw_quantiles = c(0.25, 0.5, 0.75))
+```
+
+### Scatterplot (function: geom_point)
+Visualize relationships between continuous numerical variables.
+
+```{r, scatterplot, fig.height = 3, fig.width = 4}
+ggplot(USGS.flow.data) +
+  geom_point(aes(x = discharge.mean, y = gage.height.mean))
+
+ggplot(USGS.flow.data) +
+  geom_point(aes(x = datetime, y = discharge.mean))
+```
+
+Question: under what circumstances would it be beneficial to use each of these graph types (bar plot, histogram, frequency polygon, box-and-whisker, violin, scatterplot)?
+
+> Answer: Bar plot: Most useful for analysis of categorical data; histogram: best for understanding the distribution/skewness of continuous numerical variables; frequency polygon: useful for when you want to display multiple variables or categories of variables at once; box-and-whisker: useful when you need to understand the range of the data (especially its IQR) and reveal any outliers; violin plot: best for comparison of density distributions; scatterplot: ideal for determining the relationship between variables.
+
+## Ending discussion
+
+What did you learn about the USGS discharge dataset today? What separate insights did the different graph types offer?
+> Answer: I am not much of a stream hydrologist, so I learned a lot about some of the types of measurement values that USGS samples from streams and how these types of values can be compared and contrasted visually as opposed to algebraically using each plot type. I was particulary fascinated with violin plots and their ability to simultaneously show range and distribution of data.
+
+
+How can multiple options for data exploration inform our understanding of our data?
+
+> Answer: I am reflecting on the discovery that we made constructing the scatterplot for "datetime" vs. "discharge.mean" which revealed missing data for the year 1980 that might have otherwise gone unnoticed! Considering multiple options for the ability to visualize data, whether or not they are the best at displaying what you ultimately want to convey, is incredibly valuable in the exploration process.
+
+
+Do you see any patterns in the USGS data for the Eno River? What might be responsible for those patterns and/or relationships?
+
+> Answer: One notable observation: Gage height min. and gage height max. have a similar shape in their frequency polygon curves, while the gage height mean has a much higher peak... How can this be?
+
+
