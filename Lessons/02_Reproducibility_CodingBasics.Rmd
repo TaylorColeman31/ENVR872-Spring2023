@@ -139,6 +139,7 @@ Within your R code, it is often useful to include notes about your workflow. So 
 # I am demonstrating a comment here. 
 
 1 + 1 # This is a simple math problem
+# 1 + 1
 ```
 
 ### Functions

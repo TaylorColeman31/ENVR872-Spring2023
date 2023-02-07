@@ -1,5 +1,5 @@
 ---
-title: "<TaylorColeman>_A01_Introduction.Rmd"
+title: "TaylorColeman_A01_Introduction.Rmd"
 author: "Taylor Coleman"
 output: pdf_document
 geometry: margin=2.54cm
