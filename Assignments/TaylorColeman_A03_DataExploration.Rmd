@@ -64,7 +64,8 @@ Litter <- read.csv("./Data/Raw/NEON_NIWO_Litter_massdata_2018-08_raw.csv", strin
 5.  What are the dimensions of the dataset?
 
 ```{r Neonics dimensions}
-#Having R return the number of rows and the number of columns for the Neonics dataset. The dimensions of this dataset are 4,632 rows x 30 columns.
+#Having R return the number of rows and the number of columns for the Neonics dataset. 
+#The dimensions of this dataset are 4,632 rows x 30 columns.
 dim(Neonics)
 ```
 
@@ -81,8 +82,7 @@ summary(Neonics$Effect)
 
 ```{r Neonics species summary}
 #Use of "summary" function to determine 6 most commonly studied insect species from the Neonics dataset
-summary(Neonics$Species.Common.Name)
-sort(Neonics$Species.Common.Name, decreasing = TRUE)
+sort(summary(Neonics$Species.Common.Name), decreasing = TRUE)
 ```
 
 > Answer: The six most commonly studied insect species from the Neonics dataset, based on their common names, include the honey bee, parasitic wasp, buff tailed bumblebee, Carniolan honey bee, bumble bee, Italian honeybee, and Japanese beetle. However, it is worth noting that the "Other" category had the greatest number of observations (670 whereas the honey bee had the second-highest at 667)! All of these species are pollinators - I learned that beetles are also considered pollinators, being called "mess and soil pollinators" by the Xerces Society for Invertebrate Conservation based on their messy eating habits - collecting and transferring pollen between the plants that they feed on. Thus, these insects, in comparison to others within the dataset, are more vulnerable to the application of insecticides on crops since they are directly reliant on them as a primary food source. 
@@ -101,7 +101,7 @@ class(Neonics$Conc.1..Author.)
 9.  Using `geom_freqpoly`, generate a plot of the number of studies conducted by publication year.
 
 ```{r Frequency line graph for Neonics}
-#Constructing a frequency line graph to display studies conducted by publication year from the Neonics dataset
+#Constructing a frequency line graph from Neonics to display studies conducted by publication year
 ggplot(Neonics) + 
   geom_freqpoly(aes(x = Publication.Year), bins = 30) +
   labs(x = "Publication Year", y = "Number of Studies Conducted")
@@ -143,14 +143,14 @@ summary(Neonics$Endpoint)
 12. Determine the class of collectDate. Is it a date? If not, change to a date and confirm the new class of the variable. Using the `unique` function, determine which dates litter was sampled in August 2018.
 
 ```{r Exploring collectDate from Litter}
-#Determining the class of collectDate from the Litter dataset. It is not recognized by R as a date (it is a "factor")!
+#Determining the class of collectDate from the Litter dataset. 
+#It is not recognized by R as a date (it is a "factor")!
 class(Litter$collectDate)
 
 #Changing collectDate so that it can become a date class
-library(lubridate)
-collectDate <- ymd(collectDate)
+collectDate <- ymd(Litter$collectDate)
 
-#Cconfirming that collectDate is now recognized as a "date"!
+#Confirming that collectDate is now recognized as a "date"!
 class(collectDate)
 ```
 
