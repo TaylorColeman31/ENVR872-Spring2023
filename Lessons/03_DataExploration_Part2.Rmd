@@ -9,6 +9,14 @@ fig_height: 2.5
 editor_options: 
   chunk_output_type: console
 ---
+```{r setup, include=FALSE}
+
+#install.packages('formatR')
+
+knitr::opts_chunk$set(tidy.opts=list(width.cutoff=80), tidy=TRUE)
+
+```
+
 
 ## Objectives
 1. Import and explore datasets in R

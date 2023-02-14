@@ -4,7 +4,7 @@
 ## Summary
 This dataset was prepared for Environmental Data Analytics (ENV 872L) at Duke University, Spring 2020
 
-The dataset contains data from studies on several neonicotinoids and their effects insects.
+The dataset contains data from studies on several neonicotinoids and their effects on insects.
 
 ## Database Information
 Data were collected from the U.S. Environmental Protection Agency's ECOTOX Knowledgebase. More information can be found here: https://cfpub.epa.gov/ecotox/help.cfm
