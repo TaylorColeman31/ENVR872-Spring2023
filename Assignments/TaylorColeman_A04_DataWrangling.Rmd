@@ -108,7 +108,6 @@ write.csv(EPA.PM25.2018.subset, row.names = FALSE, file = "Data/Processed/EPAair
 write.csv(EPA.PM25.2019.subset, row.names = FALSE, file = "Data/Processed/EPAair_PM25_NC2019_processed.csv")
 ```
 
-
 ## Combine datasets
 
 7. Combine the four datasets with `rbind`. Make sure your column names are identical prior to running this code.
@@ -129,17 +128,35 @@ write.csv(EPA.PM25.2019.subset, row.names = FALSE, file = "Data/Processed/EPAair
 
 11. Save your processed dataset with the following file name: "EPAair_O3_PM25_NC1819_Processed.csv"
 
-```{r combining datasets}
-#7 
+```{r combining processed datasets}
+#7 Using rbind to combine the 4 datasets
+EPAair_O3_PM25_NC1819 <- rbind(EPA.O3.2018.subset, EPA.O3.2019.subset, EPA.PM25.2018.subset, EPA.PM25.2019.subset)
 
-#8 
+# Converting Date column from factor to date variable
+EPAair_O3_PM25_NC1819$Date <- as.Date(EPAair_O3_PM25_NC1819$Date, format = "%m/%d/%Y")
 
-#9
+#8 Using pipe function to wrangle new combined dataset filtering common sites, 
+#generating daily means for AQIs, latitude, and longitude values, and adding columns for month and year.
+EPAair_O3_PM25_NC1819_Wrangled <-
+  EPAair_O3_PM25_NC1819 %>%
+  filter(Site.Name == "Linville Falls" | Site.Name == "Durham Armory" | Site.Name == "Leggett" | Site.Name == "Hattie Avenue" | Site.Name == "Clemmons Middle" | Site.Name == "Mendenhall School" | Site.Name == "Frying Pan Mountain" | Site.Name == "West Johnston Co." | Site.Name == "Garinger High School" | Site.Name == "Castle Hayne" | Site.Name == "Pitt Agri. Center" | Site.Name == "Bryson City" | Site.Name == "Millbrook School") %>%
+  group_by(Date, Site.Name, AQS_PARAMETER_DESC, COUNTY) %>%
+  summarise(mean_daily_AQI = mean(DAILY_AQI_VALUE),
+            mean_LAT = mean(SITE_LATITUDE),
+            mean_LONG = mean(SITE_LONGITUDE)) %>%
+  mutate(month = month(ymd(Date)),
+         year = year(ymd(Date)))
+#Resulted in 14,453 observations for 9 variables instead of 14,752
 
-#10
+#9 Spreading datasets using pivot_wider to create separate columns for ozone and PM 2.5
+#AQI values
+EPAair_O3_PM25_NC1819_Spread <- spread(EPAair_O3_PM25_NC1819_Wrangled, AQS_PARAMETER_DESC, mean_daily_AQI)
 
-#11
+#10 Calling the dimensions of the new dataset: Returns 8,029 rows x 9 columns
+dim(EPAair_O3_PM25_NC1819_Spread)
 
+#11 Saving processed dataset
+write.csv(EPAair_O3_PM25_NC1819_Spread, row.names = FALSE, file = "Data/Processed/EPAair_PM25_NC2019_Processed.csv")
 ```
 
 
@@ -149,16 +166,24 @@ write.csv(EPA.PM25.2019.subset, row.names = FALSE, file = "Data/Processed/EPAair
 
 13. Call up the dimensions of the summary dataset.
 
-```{r}
+```{r generating a summary data frame}
 
-#12
+#12 Creation of a summary data frame grouping by site, month, and year.
+EPAair_O3_PM25_NC1819_Summary <-
+  EPAair_O3_PM25_NC1819_Spread %>%
+  group_by(Site.Name, month, year) %>%
+  summarise(mean_O3_AQI = mean(Ozone),
+            mean_PM25_AQI = mean(PM2.5)) %>%
+  drop_na(mean_O3_AQI) 
 
-
-#13
-
+#13 calling the dimensions of the summary dataset.
+dim(EPAair_O3_PM25_NC1819_Summary) #Returns 205 rows x 5 columns
 
 ```
 
 14. Why did we use the function `drop_na` rather than `na.omit`?
 
-> Answer: 
+> Answer: We used the 'drop_na' function as opposed to 'na.omit' because we can use 
+this function to specify our desire to only drop those NA values for mean ozone 
+concentrations, whereas 'na.omit' removes all incomplete cases for data within an 
+entire data frame.
