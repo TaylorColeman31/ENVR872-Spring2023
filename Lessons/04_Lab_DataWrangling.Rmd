@@ -105,7 +105,6 @@ NTL.phys.data.processed <-
 #Exercise 3: Using a pipe, filter NTL.phys.data for Tuesday Lake from 1990 
 # through 1999 only for July.
 
-# Need to create a month column
 NTL.phys.data.Ex3 <-
   NTL.phys.data %>%
   filter(lakename=="Tuesday Lake" & year4 %in% c(1990:1999) & month(sampledate)==7)
