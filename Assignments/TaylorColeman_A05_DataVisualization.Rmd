@@ -1,0 +1,219 @@
+---
+title: "Assignment 5: Data Visualization"
+author: "Taylor Coleman"
+date: "Spring 2023"
+output: pdf_document
+geometry: margin=2.54cm
+fig_height: 3
+fig_width: 4
+editor_options: 
+  chunk_output_type: console
+---
+
+## OVERVIEW
+
+This exercise accompanies the lessons in Environmental Data Analytics on Data Visualization 
+
+## Directions
+1.  Rename this file `<FirstLast>_A05_DataVisualization.Rmd` (replacing `<FirstLast>` with your first and last name).
+2. Change "Student Name" on line 3 (above) with your name.
+3. Work through the steps, **creating code and output** that fulfill each instruction.
+4. Be sure your code is tidy; use line breaks to ensure your code fits in the knitted output.
+5. Be sure to **answer the questions** in this assignment document.
+6. When you have completed the assignment, **Knit** the text and code into a single PDF file.
+
+---
+
+## Set up your session 
+
+1. Set up your session. Load the tidyverse, lubridate, here, & cowplot packages, and verify your home directory. Upload the NTL-LTER processed data files for nutrients and chemistry/physics for Peter and Paul Lakes (use the tidy `NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv` version) and the processed data file for the Niwot Ridge litter dataset (use the `NEON_NIWO_Litter_mass_trap_Processed.csv` version). 
+
+2. Make sure R is reading dates as date format; if not change the format to date.
+
+```{r initialize project}
+#1 Loading tidyverse, lubridate, here, and cowplot packages
+library(tidyverse)
+library(lubridate)
+library(here)
+library(cowplot)
+
+# Verifying home directory
+here()
+
+# Reading in NTL-LTER processed data files and Niwot Ridge litter dataset
+PeterPaul.chem.nutrients <- 
+  read.csv(here("Data/Processed_KEY/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv"),
+           stringsAsFactors = T)
+Litter <- 
+  read.csv(here("Data/Processed_KEY/NEON_NIWO_Litter_mass_trap_Processed.csv"),
+           stringsAsFactors = T)
+
+#2 Checking to see if R reads dates as date format
+class(PeterPaul.chem.nutrients$sampledate)
+class(Litter$collectDate)
+
+# Fixing date objects to be recognized as dates and not factors
+PeterPaul.chem.nutrients$sampledate <- ymd(PeterPaul.chem.nutrients$sampledate)
+Litter$collectDate <- ymd(Litter$collectDate)
+```
+## Define your theme
+3. Build a theme and set it as your default theme. Customize the look of at least two of the following: 
+ * Plot background
+ * Plot title
+ * Axis labels
+ * Axis ticks/gridlines
+ * Legend
+
+```{r build plot theme}
+#3 Constructing a personalized theme
+mytheme <- theme_light(base_size = 14) + 
+  theme(axis.text = element_text(color = "black"), 
+        legend.position = "right",
+        plot.title = element_text(face = "bold", hjust = 0.5)) 
+
+# Setting theme as default
+theme_set(mytheme)
+```
+
+## Create graphs
+For numbers 4-7, create ggplot graphs and adjust aesthetics to follow best practices for data visualization. Ensure your theme, color palettes, axes, and additional aesthetics are edited accordingly.
+
+4. [NTL-LTER] Plot total phosphorus (`tp_ug`) by phosphate (`po4`), with separate aesthetics for Peter and Paul lakes. Add a line of best fit and color it black. Adjust your axes to hide extreme values (hint: change the limits using `xlim()` and/or `ylim()`).
+
+```{r plot total P vs PO4}
+#4 Plotting TP x PO4 
+PeterPaul.TP.PO4.plot <- PeterPaul.chem.nutrients %>%
+  ggplot(aes(x = po4, y = tp_ug, color = lakename)) +
+  geom_point() +
+  geom_smooth(method = lm, color = "black") +
+  labs(title = expression('TP by PO' [4] * " Levels in Peter and Paul Lakes"), 
+       x = expression('PO'[4]), 
+       y = "TP") +
+  guides(color = guide_legend(title = "Lake Name"))
+print(PeterPaul.TP.PO4.plot)
+
+#Adjusting axes
+PeterPaul.TP.PO4.plot <- PeterPaul.chem.nutrients %>%
+  ggplot(aes(x = po4, y = tp_ug, color = lakename)) +
+  geom_point() +
+  geom_smooth(method = lm, color = "black") +
+ theme(plot.title = element_text(hjust = 0.5)) + 
+  xlim(0, 45) +
+  ylim(0, 150) +
+  labs(title = expression('TP by PO' [4] * " Levels in Peter and Paul Lakes"), 
+       x = expression('PO'[4]), 
+       y = "TP") + 
+  coord_cartesian(expand = FALSE) + #Setting origin to (0,0)
+   guides(color = guide_legend(title = "Lake Name"))
+print(PeterPaul.TP.PO4.plot)
+```
+
+5. [NTL-LTER] Make three separate boxplots of (a) temperature, (b) TP, and (c) TN, with month as the x axis and lake as a color aesthetic. Then, create a cowplot that combines the three graphs. Make sure that only one legend is present and that graph axes are aligned. 
+
+Tip: R has a built-in variable called `month.abb` that returns a list of months;see <https://r-lang.com/month-abb-in-r-with-example>
+
+```{r Create boxplots}
+#5 Converting month to a factor
+factor(PeterPaul.chem.nutrients$month,
+       levels = 1:12)
+
+# (a) Boxplot for temperature from samples obtained from 1984-2016 
+PeterPaul.temp.plot <- PeterPaul.chem.nutrients %>%
+  ggplot(aes(x = factor(month, levels = 1:12, labels = month.abb), 
+             y = temperature_C, color = lakename)) +
+  geom_boxplot() +
+  labs(title = "Temperature of Peter and Paul Lakes by Month",
+       x = "Month",
+       y = ("Temperature in \u00B0C")) +
+    guides(color = guide_legend(title = "Lake Name"))
+print(PeterPaul.temp.plot)
+
+# (b) Boxplot for TP
+PeterPaul.TP.plot <- PeterPaul.chem.nutrients %>%
+  ggplot(aes(x = factor(month, levels = 1:12, labels = month.abb), 
+             y = tp_ug, color = lakename)) +
+  geom_boxplot() +
+  labs(title = "TP Levels in Peter and Paul Lakes by Month",
+       x = "Month",
+       y = "TP in ug") +
+    guides(color = guide_legend(title = "Lake Name"))
+print(PeterPaul.TP.plot)
+
+# (c) Boxplot for TN
+PeterPaul.TN.plot <- PeterPaul.chem.nutrients %>%
+  ggplot(aes(x = factor(month, levels = 1:12, labels = month.abb), 
+             y = tn_ug, color = lakename,)) +
+  geom_boxplot() +
+  labs(title = "TN Levels in Peter and Paul Lakes by Month",
+       x = "Month",
+       y = "TN in ug") +
+  guides(color = guide_legend(title = "Lake Name"))
+print(PeterPaul.TN.plot)
+
+# Using cowplot to combine the 3 graphs
+PeterPaul.combined.plot <- plot_grid(PeterPaul.TN.plot + theme(axis.text.x = element_blank(),
+                                    axis.title.x = element_blank(),
+                                    legend.position = "none",
+                                    plot.title = element_text(hjust = 0.5)),
+          PeterPaul.TP.plot + theme(axis.text.x = element_blank(),
+                                    axis.title.x = element_blank(),
+                                    legend.position = "none", 
+                                    plot.title = element_text(hjust = 0.5)),
+          PeterPaul.temp.plot + theme(legend.position = "none",
+                                    plot.title = element_text(hjust = 0.5)), 
+          axis = "b", nrow = 3, rel_heights = c(1, 1, 1))
+print(PeterPaul.combined.plot)
+
+# Adding legend back manually
+legend <- get_legend(PeterPaul.temp.plot)
+PeterPaul.final.combined.plot <- plot_grid(PeterPaul.combined.plot, 
+                                           legend,
+                                           rel_widths = c(3, .4))
+print(PeterPaul.final.combined.plot)
+```
+
+Question: What do you observe about the variables of interest over seasons and between lakes? 
+
+> Answer: From the temperature plot, Paul Lake had higher median temperatures than Peter Lake until the final two sampled months of October and November. The median temperatures for Peter and Paul lakes were very similar in September, beyond which a change in the trend could be observed and the IQR or range of temperatures greatly diminished for both lakes (which makes sense with the onset of fall). The TP plot revealed that Peter Lake consistently had higher median levels of TP for all sample months whereas median TN concentrations were similar between the two lakes, with Peter Lake consistently exhibiting a greater presence of high "outlier" values. Peter Lake had higher outlier values than Paul Lake for its TP concentrations over time as well, with the exception of the month of May. 
+
+6. [Niwot Ridge] Plot a subset of the litter dataset by displaying only the "Needles" functional group. Plot the dry mass of needle litter by date and separate by NLCD class with a color aesthetic. (no need to adjust the name of each land use)
+
+7. [Niwot Ridge] Now, plot the same plot but with NLCD classes separated into three facets rather than separated by color. 
+
+```{r Plot litter}
+#6 Plotting a subset of Litter dataset for "Needles"
+Litter.Needles.plot <- Litter %>%
+  filter(functionalGroup == "Needles") %>%
+  ggplot(aes(x = collectDate, y = dryMass, color = nlcdClass)) +
+  geom_point() +
+  labs(title = "Needle Litter Dry Mass by Date and NLCD Class",
+       x = "Collection Date",
+       y = "Dry Mass (g)") + 
+  theme(plot.title = element_text(hjust = 0.5, face = "bold")) +
+  scale_color_discrete(name = "NLCD Class", 
+                       label = c("Evergreen Forest",
+                                 "Grassland, Herbaceous",
+                                 "Shrub, Scrub")) # Unnecessary, but something I wanted to experiment with!
+print(Litter.Needles.plot)
+
+#7 Separating each NLCD class into facets
+Litter.Needles.facets.plot <- Litter %>%
+  filter(functionalGroup == "Needles") %>%
+  ggplot(aes(x = collectDate, y = dryMass)) +
+  geom_point() +
+  labs(title = "Needle Litter Dry Mass by Date and NLCD Class",
+       x = "Collection Date",
+       y = "Dry Mass (g)") + 
+  theme(plot.title = element_text(hjust = 0.5, face = "bold")) +
+  facet_wrap(vars(nlcdClass), nrow = 3, 
+             labeller = labeller(nlcdClass = c("evergreenForest" = "Evergreen Forest",
+                         "grasslandHerbaceous" = "Grassland, Herbaceous",
+                                "shrubScrub" = "Shrub, Scrub"))) 
+print(Litter.Needles.facets.plot)
+```
+Question: Which of these plots (6 vs. 7) do you think is more effective, and why? 
+
+> Answer: I think that plot 7 is more effective at displaying the dry mass values 
+of needle litter because it separates each class type and thereby prevents the data 
+points from each class type from overlapping and being unable to be distinguished 
+from others, as can be the case when investigating the first plot.
