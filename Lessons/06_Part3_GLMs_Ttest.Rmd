@@ -65,13 +65,15 @@ EPAair$Date <- as.Date(EPAair$Date, format = "%Y-%m-%d")
 H0: mu >= 50
 Ha: mu < 50
 
-```{r}
+```{r 1-way t-test}
 summary(EPAair$Ozone) #mean = 40.88 and median = 40
 length(EPAair$Ozone) #8976 observations
 
 O3.onesample <- t.test(EPAair$Ozone, mu = 50, alternative = "less")
 O3.onesample
+# Conclusion: Reject H0, population mean < 50
 
+# Visualization of results
 Ozone.plot <- ggplot(EPAair, aes(x = Ozone)) +
   geom_density(fill = "gray") +
   geom_vline(xintercept = 50, color = "#238b45", lty = 2, size = 0.9) +
@@ -86,7 +88,7 @@ O3.onesample2
 
 Write a sentence or two about the results of this test. Include both the results of the test and an interpretation that puts the findings in context of the research question.
 
-> 
+> Most of the observations and the mean exist to the left of the null hypothesis's assumption that the mean is equal to 50. The p-value reported from our "onesample" t-test confirms this. 
 
 ### Two-sample t-test
 
@@ -95,7 +97,7 @@ The two-sample *t* test is used to test the hypothesis that the mean of two samp
 For example, we might ask ourselves (from the EPA air quality processed dataset): 
 Are Ozone levels different between 2018 and 2019?
 
-```{r}
+```{r 2-sample t-test}
 #First let's look at the data
 ggplot(EPAair, aes(x = Ozone, color = as.factor(Year))) +
   geom_freqpoly()
@@ -110,6 +112,7 @@ O3.twosample
 O3.twosample2 <- lm(EPAair$Ozone ~ EPAair$Year)
 summary(O3.twosample2)
 
+# Conclusions: Mean ozone concentration values are different between 2018 and 2019, and there is statistical significance behind using year as a predictor of ozone levels.   
 ```
 
 

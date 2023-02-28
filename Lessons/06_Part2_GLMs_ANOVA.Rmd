@@ -16,8 +16,9 @@ editor_options:
 ```{r, message = FALSE}
 
 library(tidyverse)
-#install.packages("agricolae")
-library(agricolae)   #you may need to install/update package "htmltools" before installing and loading agricolae
+install.packages("agricolae")
+install.packages("htmltools")
+library(agricolae)   #you may need to install/update package "htmltools" before installing and #loading agricolae
 library(here)
 here()
 
@@ -37,22 +38,25 @@ theme_set(mytheme)
 A one-way ANOVA is used when you have one categorical explanatory variable with more than two categories. In R, we can run the model with the function `lm` or `aov`, the latter of which will allow us to run post-hoc tests to determine pairwise differences.
 
 For example: Does total litter biomass differ among sites at the Niwot Ridge LTER?
-```{r}
+```{r }
 # Wrangle the data
 Litter.Totals <- Litter %>%
   group_by(plotID, collectDate, nlcdClass) %>%
   summarise(dryMass = sum(dryMass))
 
 summary(Litter.Totals)
-#check all value of plotID
-summary(Litter.Totals$plotID)
 
-# Test for normality. 
+# Checking all values of plotID
+summary(Litter.Totals$plotID)
+# Not a balanced design; however, we can still run the 1-way ANOVA test
+
+# Testing assumption 1: Test for normality. 
 # Note: the important assumption for GLMs is normality of residuals, 
 # not necessarily normality of raw data. See below when we plot the model.
 # shapiro.test() performs the Shapiro-Wilk test of the null that data follows a normal distribution
 
 shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_040"])
+# Plot ID "NIWO_040" does not follow normal dist.
 shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_041"])
 shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_046"])
 shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_047"])
@@ -64,27 +68,31 @@ shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_062"])
 shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_063"])
 shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_064"])
 shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_067"])
-
 #results: reject null in all except two: NIWO_057 and NIWO_046
 #but method is robust from small deviations from normal distribution
-qqnorm(Litter.Totals$dryMass); qqline(Litter.Totals$dryMass)
 
-# Test for equal variance
+# Another way to test for normality:
+qqnorm(Litter.Totals$dryMass); qqline(Litter.Totals$dryMass)
+# To be normal, data points would need to follow the qqline. This is not the case for dry mass
+
+# Testing assumption 2: Test for equal variance
 # ANOVA is robust against departures from equal variance.
 # bartlett.test() performs Bartlett's test of the null that the variances in each of the groups (samples) are the same.
 bartlett.test(Litter.Totals$dryMass ~ Litter.Totals$plotID)
 
-#results: reject null i.e. variances are not equal
+#results: reject null i.e. variances are not equal!
 
 # Format ANOVA as aov
 Litter.Totals.anova <- aov(data = Litter.Totals, dryMass ~ plotID)
 summary(Litter.Totals.anova)
 
-#results: reject null hypothesis i.e. difference between a pair of group means is statistically significant
+#results: reject null hypothesis i.e. difference between a pair of group means is statistically significant. Means are not all the same! But how can we know which means are different? Need to run a post-hoc test!
 
-# Format ANOVA as lm
+# Side note: Can run ANOVA as lm function
+# Summary from lm linear regression contains one row for each level of categorical variable.
 Litter.Totals.anova2 <- lm(data = Litter.Totals, dryMass ~ plotID)
 summary(Litter.Totals.anova2)
+# Note that "NIWO_040" = "Intercept" term, and all other estimates are relevant to this intercept term. For example, "NIWO_041" has a value of 1.299 = (1.299 + 15.580)
 
 # Checking model fit and assumptions
 # ANOVA is robust against departures from normality.
@@ -93,16 +101,18 @@ plot(Litter.Totals.anova2)
 # Post-hoc test
 # TukeyHSD() computes Tukey Honest Significant Differences
 TukeyHSD(Litter.Totals.anova)
+# Provides diff = difference between each pair of means, lwr and upr for lower and upper CI values, and p-value for multiple comparisons
 
-# Extract groupings for pairwise relationships
+# Extract groupings for pairwise relationships for grouping pairs of similar means
 Litter.Totals.groups <- HSD.test(Litter.Totals.anova, "plotID", group = TRUE)
 Litter.Totals.groups
+# Groups of similar means classified by shared letters
 
 # Graph the results
 Litter.Totals.plot <- ggplot(Litter.Totals, aes(x = plotID, y = dryMass)) +
   geom_boxplot() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  stat_summary(geom = "text", fun = max, vjust = -1, size = 3.5,
+  stat_summary(geom = "text", fun = max, vjust = -1, size = 3.5, #vjust angles text for plot ID labels
                label = c("abc", "ab", "abcd", "bcd", "bcd", "a", 
                          "d", "abcd", "cd", "d", "abcd", "abcd")) +
   labs(x = "Plot ID", y = "Dry Mass (g)") +
@@ -112,7 +122,7 @@ print(Litter.Totals.plot)
 
 What information does the output give us? How might we report this information in a report?
 
-> 
+> All sites with "a" have similar means. To report this, it would help to reorder the boxplots by sites/plot IDs, keeping all "a's" together. 
 
 ## TWO-WAY ANOVA
 
@@ -124,13 +134,17 @@ For example: What if we wanted to know how litter masses varied across functiona
 # Format as aov
 Litter.anova.2way <- aov(data = Litter, dryMass ~ functionalGroup + nlcdClass)
 summary(Litter.anova.2way)
+# Conclusion: We can reject H0 (litter masses do seem to vary across functional groups and land cover classes)
 
 # Format as lm
 Litter.anova.2way2 <- lm(data = Litter, dryMass ~ functionalGroup + nlcdClass)
 summary(Litter.anova.2way2)
+# Same conclusion from aov
 
-# Run a post-hoc test for pairwise differences
+# Run a post-hoc test for pairwise differences - USE TO DETERMINE SIGNIFICANT INTERACTIONS TO REPORT WITH FINDINGS
 TukeyHSD(Litter.anova.2way)
+
+# Conclusion: Any functional group pairs that have a "p adj" value < 0.05 should be included as a predictor interaction variable for dry masses. For example, needles and flowers and needles AND flowers combined should be included in the model/considered!
 
 ```
 
@@ -140,7 +154,7 @@ We may expect the effects of functional group and land cover to be dependent on 
 
 The output gives test statistics for each explanatory variable as well as the interaction effect of the explanatory variables. If the p-value for the interaction effect is less than 0.05, then we would consider the interaction among the explanatory variables to be significant.
 
-```{r}
+```{r considering interaction effects between land cover and functional group}
 # Format as aov
 Litter.anova.2way3 <- aov(data = Litter, dryMass ~ functionalGroup * nlcdClass)
 summary(Litter.anova.2way3)
@@ -159,10 +173,13 @@ TukeyHSD(Litter.anova.2way3)
 
 Litter.interaction <- with(Litter, interaction(functionalGroup, nlcdClass))
 
+# Use to view the merge between functional groups and NLCD classes in table format:
 #Litter.test <- cbind(Litter,Litter.interaction)
 
+# Comparing means for each litter interaction level (24 levels total)
 Litter.anova.2way5 <- aov(data = Litter, dryMass ~ Litter.interaction)
 
+# Grouping dataset based on interaction levels
 Litter.groups <- HSD.test(Litter.anova.2way5, "Litter.interaction", group = TRUE)
 Litter.groups
 
