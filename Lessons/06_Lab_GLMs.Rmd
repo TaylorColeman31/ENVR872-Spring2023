@@ -102,7 +102,6 @@ ggplot(EPAair, aes(x = Ozone, y = PM2.5)) +
 
 ```
 
-
 ## AIC to select variables
 
 What other variables can we add to improve model?
