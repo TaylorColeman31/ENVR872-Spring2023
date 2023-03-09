@@ -4,6 +4,8 @@ author: Environmental Data Analytics | John Fay & Luana Lima
 date: "Spring 2023"
 output: html_document
 runtime: shiny
+editor_options: 
+  chunk_output_type: console
 ---
 
 ## Overview
@@ -111,6 +113,7 @@ plot_function <- function(parameter,start_year,end_year){
   
   return(TP_plot)
 }
+plot_function("tp_ug", 1990, 2005)
 ```
 
 ##Interactive R with Shiny Widgets - The R MarkDown Cheat Sheet provides a short example on how to make your Markdown document interactive. First you must alter your YAML section to read:
