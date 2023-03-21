@@ -240,7 +240,7 @@ wind_data_trend1 <- Kendall::SeasonalMannKendall(wind_data_ts)
 # Inspect results
 wind_data_trend1
 summary(wind_data_trend1)
-# p-value > 0.05; we fail to reject H0. Trend seems to be stationary. 
+# p-value > 0.05; we fail to reject H0 (that variables are independent, identically distributed). Trend seems to be stationary. 
 
 # Approach #2: Run SMK test using smk.test()
 wind_data_trend2 <- trend::smk.test(wind_data_ts)
