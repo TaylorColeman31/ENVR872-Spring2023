@@ -83,15 +83,25 @@ BR_complete <- inner_join(Rainfall_BR_processed,Temp_BR_processed)
 ```{r}
 
 #Exercise 5: Check if there is any missing data for both temperature and rainfall series.
+is.na(BR_complete$Temperature_C)
+summary(BR_complete$Temperature_C)
+#No NAs for Temp
 
-
-
+summary(BR_complete$Rainfall)
+#No NAs for Rainfall
 
 #Exercise 6: Plot both series over time on separate plots. Add a trend line using geom_smooth(). Can you say something about the trend just by visualizing the data?
+ggplot(BR_complete,
+       aes(x = Date, y = Temperature_C)) + 
+  geom_line()+
+  geom_smooth(method = "lm")
+#Increasing trend with seasonality
 
-
-
-
+ggplot(BR_complete,
+       aes(x = Date, y = Rainfall)) +
+  geom_line()+
+  geom_smooth(method = "lm")
+#Relatively constant trend with seasonality (up and down movements)
 
 
 ```
@@ -99,10 +109,13 @@ BR_complete <- inner_join(Rainfall_BR_processed,Temp_BR_processed)
 ## Creating time series objects
 
 ```{r}
-#Exercise 7: Create a time series objects for each series using ts(). Make sure you specify the starting point and frequency.
+#Exercise 7: Create a time series object for each series using ts(). Make sure you specify the starting point and frequency.
+f_month <- month(first(BR_complete$Date))
+f_year <- year(first(BR_complete$Date))
 
-
-
+Rainfall_ts <- ts(BR_complete$Rainfall, start = c(f_year, f_month), frequency = 12)
+#Option 2: Rainfall_ts <- ts(BR_complete$Rainfall, start = c(1901, 1), frequency = 12)
+Temp_ts <- ts(BR_complete$Temperature_C, start = c(f_year, f_month), frequency = 12)
 ```
 
 
@@ -119,29 +132,43 @@ A given time series can be made up of several component series:
 The `stl` function decomposes the time series object into its component parts. We must specify that the window for seasonal extraction is either "periodic" or a specific number of at least 7. The decomposition proceeds through a loess (locally estimated scatterplot smoothing) function.
 
 ```{r}
-
 # Exercise 8: Use the stl() function to decompose both series. 
 # Visualize the decomposed series using plot(). What components can you identify?
+Rainfall_decomp <- stl(Rainfall_ts, s.window = "periodic")
+Temp_decomp <- stl(Temp_ts, s.window = "periodic")
 
-
-
-
-
+plot(Rainfall_decomp)
+plot(Temp_decomp)
 
 # Exercise 9: Use the times series object generated with the stl() to extract the 
 # components of each series and turn them into data frames.
-
-
-
-
+Rain_components <- as.data.frame(Rainfall_decomp$time.series[,1:3])
+Temp_components <- as.data.frame(Temp_decomp$time.series[,1:3])
 
 
 # Exercise 10: Visualize how the trend maps onto the data for both series
+#Extracting Date and Rainfall observations from original dataset to be added to components data
+Rain_components <- mutate(Rain_components,
+                          Observed = BR_complete$Rainfall,
+                          Date = BR_complete$Date)
+Temp_components <- mutate(Temp_components,
+                          Observed = BR_complete$Temperature_C,
+                          Date = BR_complete$Date)
 
 
+ggplot(Rain_components, aes(x = Date)) +
+  geom_line(aes(y = Observed),
+            color = "red") +
+  geom_line(aes(y = trend),
+            color = "blue") + 
+  ylab("Rainfall")
 
-
-
+ggplot(Temp_components, aes(x = Date)) +
+  geom_line(aes(y = Observed),
+            color = "red") +
+  geom_line(aes(y = trend),
+            color = "blue") + 
+  ylab("Temperature")
 
 ```
 
@@ -159,13 +186,10 @@ Monotonic trends are a gradual shift over time that is consistent in direction. 
 ```{r}
 
 # Exercise 11: Apply one of the trend detection test to the original data set. Remember that the data has seasonal component, which test can be applied in this case?
-
-
-
-
-
-
-
+#Seasonal Mann-Kendall test!
+Temp_trend <- trend::smk.test(Temp_ts)
+summary(Temp_trend)
+#All p-values for temperature are less than 0.05, allowing us to reject the null hypothesis that the temperatures are independent, identically distributed. Additionally, positive S values indicate an increasing trend.
 
 
 # Exercise 12: Now remove the seasonality and apply another test. Compare the results with what you obtained on Exercise 9.
