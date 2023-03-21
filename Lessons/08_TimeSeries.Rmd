@@ -242,12 +242,12 @@ wind_data_trend1
 summary(wind_data_trend1)
 # p-value > 0.05; we fail to reject H0. Trend seems to be stationary. 
 
-# Approach #2: 
+# Approach #2: Run SMK test using smk.test()
 wind_data_trend2 <- trend::smk.test(wind_data_ts)
 # Inspect results
 wind_data_trend2
 summary(wind_data_trend2)
-#Returns S, tau, and p-values for each season
+#Returns S, tau, and p-values for each season. Confirms that there is an overall decreasing trend. Where p-value > 0.05, trend is stationary
 
 #Visualization
 wind_data_plot <-
@@ -262,7 +262,7 @@ print(wind_data_plot)
 
 What would we conclude based on these findings? 
 
-> Answer:
+> Answer: The trend for wind speed is decreasing over time.
 
 
 ## Forecasting with Autoregressive and Moving Average Models (ARMA)
