@@ -222,17 +222,14 @@ ggplot(GaringerOzone.monthly,
 #15 Creating new dataframe: Subtracting seasonal component from mean monthly O3 concentrations 
 GaringerOzone.monthly.nonseasonal <- as.data.frame(GaringerOzone.monthly.decomposed$time.series[, 2:3])
 
-# Merging "trend" and "remainder" columns
-GaringerOzone.monthly.nonseasonal <- unite(GaringerOzone.monthly.nonseasonal, components, 
-                                           c(trend, remainder)) 
-
-# Adding date and mean ozone columns to the dataframe
-GaringerOzone.monthly.nonseasonal <- mutate(GaringerOzone.monthly.nonseasonal,
-         Observed = GaringerOzone.monthly$Monthly.Mean.Ozone.Concentration,
-         Date = GaringerOzone.monthly$Date)
+# Merging "trend" and "remainder" columns - actually add them together using "mutate" and "sum"!
+GaringerOzone.monthly.nonseasonal <- mutate(GaringerOzone.monthly.nonseasonal, 
+                                           components = sum("trend", "remainder")) 
+GaringerOzone.monthly.nonseasonal <- as.data.frame(GaringerOzone.monthly.decomposed$time.series[, 2:3]) %>%
+  mutate(nonseasonal = trend + remainder)
 
 # Converting GaringerOzone.monthly.nonseasonal to new time series object 
-GaringerOzone.monthly.nonseasonal.ts <- ts(GaringerOzone.monthly.nonseasonal$Observed,
+GaringerOzone.monthly.nonseasonal.ts <- ts(GaringerOzone.monthly.nonseasonal$nonseasonal,
                                start = c(2010, 1),
                                frequency = 12)
 
@@ -249,4 +246,4 @@ summary(GaringerOzone.monthly.trend2)
 # GaringerOzone.monthly.nonseasonal.ts. This is my hypothesis at least!
 ```
 
-> Answer: Running the Mann-Kendall test on the nonseasonal version of the monthly mean ozone concentration time series results in a slightly larger negative number for the reported score than the seasonal Mann-Kendall due to its smaller number of observations given the data's monthly aggregation. Simply considering this score suggests a decreasing trend over time for average ozone concentrations at Garinger High School. However, because the Mann-Kendall test also reports a 2-sided p-value that is greater than the significance level of 0.05, we ultimately cannot conclude that there is a trend in ozone concentrations as we fail to reject the null hypothesis that ozone is independent and identically distributed (p = 0.33732). It would appear that removing the seasonal component from the GaringerOzone data frame results in removal of the trend. 
+> Answer: Running the Mann-Kendall test on the nonseasonal version of the monthly mean ozone concentration time series results in a slightly larger negative number for the reported score than the seasonal Mann-Kendall due to its smaller number of observations given the data's monthly aggregation. Simply considering this score suggests a decreasing trend over time for average ozone concentrations at Garinger High School. However, because the Mann-Kendall test also reports a 2-sided p-value that is greater than the significance level of 0.05, we ultimately cannot conclude that there is a trend in ozone concentrations as we fail to reject the null hypothesis that ozone is independent and identically distributed (p = 0.33732). It would appear that removing the seasonal component from the GaringerOzone data frame results in removal of the trend. INCORRECT! Correct 2-sided p-value was 0.0075402!
