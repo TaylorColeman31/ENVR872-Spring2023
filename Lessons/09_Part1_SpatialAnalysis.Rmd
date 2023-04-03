@@ -162,6 +162,7 @@ Let's explore:
 ```{r buffer Grainger hall}
 #Buffer Grainger Hall 1 unit
 the_buffer <- sf_GraingerHall %>% st_buffer(1)
+#"1" refers to 1 degree lat and long for buffer
 
 #View the result
 mapview(the_buffer)
@@ -228,7 +229,7 @@ Say we want to the distance between our EPA sites and the nearest Gas Plant. We 
 
 
 ```{r Transform the dataset}
-#Transform the datasets to use UTM 17 N, WGS84
+#Transform the datasets to use UTM Zone 17 N, WGS84
 EPAair.sf.utm <- st_transform(EPAair.sf,32617)
 GasPlants.utm <- st_transform(GasPlants,32617)
 
@@ -249,7 +250,6 @@ mean_distances <-  rowMeans(distance_matrix)
 #Add as a column to the epa sites
 EPAair.sf.utm  <-  EPAair.sf.utm %>% 
   bind_cols("AvgDistToGasPlant" = mean_distances)
-
 
 
 ```

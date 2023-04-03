@@ -296,6 +296,7 @@ mapview(state_sf)
 
 ```{r Aggregate the HUC data on an attribute, saving as huc2_sf}
 #List the unique values in the DWQ_Basin field 
+unique(huc8_sf)
 huc2_sf <- huc8_sf %>%
   group_by(DWQ_Basin) %>%
   summarize(ACRES = sum(ACRES),
@@ -303,6 +304,10 @@ huc2_sf <- huc8_sf %>%
 
 
 #Summarize on DWQ Basin value
+huc2_sf <- huc8_sf %>%
+  group_by(DWQ_Basin) %>%
+  summarize(ACRES = sum(ACRES),
+            SQ_MILES = sum(SQ_MILES))
 
 #Map the data
 mapview(huc2_sf, zcol = "ACRES")
